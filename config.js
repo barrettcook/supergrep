@@ -1,4 +1,4 @@
-exports.config = {
+module.exports = {
     dev: false,
     port: 3000,
     lockFile: '/var/run/stream.pid',

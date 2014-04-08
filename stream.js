@@ -17,7 +17,7 @@ var cache = { js: {}, jsc: {}, less: {} };
 
 /* Config stuff */
     //Load config specified on command line
-    var config = require(__dirname + "/" + process.argv[2]).config;
+    var config = require(__dirname + "/" + process.argv[2]);
     if (!config.defaultMaxLines) {
         config.defaultMaxLines = 50;
     }

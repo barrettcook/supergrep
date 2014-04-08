@@ -5,7 +5,7 @@ module.exports = function(grunt) {
       dev: {
         script: 'stream.js',
         options: {
-          args: ['localConfig.js']
+          args: ['config.js']
         }
       }
     }

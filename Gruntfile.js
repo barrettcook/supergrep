@@ -1,11 +1,13 @@
 module.exports = function(grunt) {
 
+  var configFile = grunt.option('config') || 'config.js';
+
   grunt.initConfig({
     nodemon: {
       dev: {
         script: 'server.js',
         options: {
-          args: ['config.js']
+          args: [configFile]
         }
       }
     }

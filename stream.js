@@ -56,7 +56,7 @@ var cache = { js: {}, jsc: {}, less: {} };
         }
     }
 
-var app = express.createServer();
+var app = express();
 //Allow JSONP support
 app.enable("jsonp callback");
 app.use(express.logger());

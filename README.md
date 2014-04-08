@@ -22,7 +22,7 @@ Then you can install the node packages:
 
 Run it from your install directory like:
 
-    $ ./runlocal
+    $ grunt
     
 Point your browser to localhost (default port:3000) and then click on "Guide" to get a tour.
 

@@ -8,6 +8,7 @@ var socketio    = require('socket.io');
 var less        = require('less');
 var uglify      = require('uglify-js');
 var LogReader   = require('./lib/logreader');
+var ElasticsearchListener = require('./lib/elasticsearch');
 
 var STATIC_PATH = '/static';
 
@@ -26,7 +27,11 @@ var cache = { js: {}, jsc: {}, less: {} };
 
     //Create a log reader for each log defined in config
     config.files.forEach(function (file) {
-        logReaders[file.name] = new LogReader(file, config);
+        if (file.type === 'elasticsearch') {
+            logReaders[file.name] = new ElasticsearchListener(file, config);
+        } else {
+            logReaders[file.name] = new LogReader(file, config);
+        }
     });
 
     // trap TERM signals and close all readers

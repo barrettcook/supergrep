@@ -320,6 +320,53 @@
         try{
             var output = { ns: ns, rawdata: data, id: 'log' + pvt.entryCounter++ };
 
+            if (typeof data == 'object') {
+                // We already have a JSON object. Yey!
+                output.server = data._source.logsource || 'localhost';
+                output.timestamp = new Date(data._source.timestamp || 0);
+                output.client = data._source['@source_host'];
+                output.hash = data._id;
+                output.severity = data._source.web_loglevel || data._source.severity_label || 'info';
+                output.severity = output.severity.toLowerCase();
+                output.namespace = data._source.program;
+                output.rawdata = data._source['@message'];
+                output.data = data._source.web_error || data._source.web_syslog_msg || data._source.message;
+
+                if (data._source.web_syslog_file) {
+                    // Syslog
+                    output.path = {
+                        file: data._source.web_syslog_file.replace(/\\\//g, "/"),
+                        line: data._source.web_syslog_line
+                    };
+                    output.path.url = pvt.paths.githubWebPrefix + output.path.file + '#L' + output.path.line;
+                    output.userid = data._source.web_syslog_args || '';
+                } else if (data._source.web_file) {
+                    // Web (PHP)
+                    output.path = {
+                        file: data._source.web_file.replace(/\\\//g, "/"),
+                        line: data._source.web_line
+                    };
+                    output.path.url = pvt.paths.githubWebPrefix + output.path.file + '#L' + output.path.line;
+                }
+                if (data._source.web_syslog_trace) {
+                    output.stacktrace = [];
+                    var fullStack = JSON.parse('[' + data._source.web_syslog_trace + ']');
+                    for (var i = 0; i < fullStack.length; i++) {
+                        var stackEntry = { call: '', file: '', line: '', url: '' };
+                        if (fullStack[i] instanceof Array) {
+                            stackEntry.file = fullStack[i][0];
+                            stackEntry.line = fullStack[i][1];
+                            stackEntry.url = pvt.paths.githubWebPrefix + stackEntry.file + '#L' + stackEntry.line;
+                        } else {
+                            stackEntry.call = fullStack[i]['class'] + fullStack[i].type + fullStack[i]['function'];
+                        }
+                        output.stacktrace.push(stackEntry);
+                    }
+                }
+
+                return output;
+            }
+
             //Check if the logs are from a DEV server
             var isDev = pvt.regex.devtest.test(data);
 
@@ -454,7 +501,8 @@
     };
 
     sg.writeLogEntry = function Etsy$Supergrep$writeLogEntry (ns, data) {
-        var dataHash = hex_sha256(data);
+        var id = (typeof data === 'object') ? data._id : data;
+        var dataHash = hex_sha256(id);
         if (pvt.hashes[dataHash]) {
             return;
         }

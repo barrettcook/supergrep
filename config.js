@@ -40,6 +40,12 @@ module.exports = {
                     return false;
                 }
             }
+        },
+        {
+            name: 'es-tier',
+            type: 'elasticsearch',
+            host: 'https://elasticsearch.yourdomain.com',
+            query: '*'
         }
     ],
     blamebot: {

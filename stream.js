@@ -8,6 +8,7 @@ var socketio    = require('socket.io');
 var less        = require('less');
 var uglify      = require('uglify-js');
 var LogReader   = require('./lib/logreader');
+var LogstashReader = require('./lib/logstashreader');
 
 var STATIC_PATH = '/static';
 
@@ -26,7 +27,7 @@ var cache = { js: {}, jsc: {}, less: {} };
 
     //Create a log reader for each log defined in config
     config.files.forEach(function (file) {
-        logReaders[file.name] = new LogReader(file, config);
+        logReaders[file.name] = getLogReader(file, config);
     });
 
     // trap TERM signals and close all readers
@@ -36,9 +37,17 @@ var cache = { js: {}, jsc: {}, less: {} };
     });
 
 /* Misc helper funcs */
+    function getLogReader(file, config) {
+        if (file.port) {
+            return new LogstashReader(file, config);
+        } else {
+            return new LogReader(file, config);
+        }
+    }
+
     function closeReaders() {
       for (var name in logReaders) {
-        logReaders[name].log.kill();
+        logReaders[name].kill();
       }
     }
 

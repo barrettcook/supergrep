@@ -454,11 +454,24 @@
     };
 
     sg.writeLogEntry = function Etsy$Supergrep$writeLogEntry (ns, data) {
-        var dataHash = hex_sha256(data);
+        var dataHash = hex_sha256(JSON.stringify(data));
         if (pvt.hashes[dataHash]) {
             return;
         }
-        var templateData = this.parseLogEntry(ns, data);
+
+        var templateData;
+        if (typeof data == "string") {
+            templateData = this.parseLogEntry(ns, data);
+        } else {
+            templateData = data;
+            templateData.id = data.token;
+            templateData.timestamp = new Date(data['@timestamp']);
+            templateData.rawdata = data.message;
+            templateData.path = {
+                file: data.path_file,
+                line: data.path_line
+            };
+        }
         pvt.hashes[dataHash] = 1;
         templateData.hash = dataHash;
         this.addEntry($(CWinberry.Templating.render('tpl_logEntry', templateData)), templateData);

@@ -40,6 +40,10 @@ exports.config = {
                     return false;
                 }
             }
+        },
+        {
+            name: 'logstash',
+            port: 3001
         }
     ],
     blamebot: {
